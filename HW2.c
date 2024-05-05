@@ -1,4 +1,4 @@
-#include<stdio.h>
+	#include<stdio.h>
 #include<stdlib.h>
 #include <conio.h>
 int main(void){
@@ -103,3 +103,4 @@ int main(void){
 
     return 0;
 }
+//心得:這段程式碼包含了兩個功能：第一部分是檢查密碼，如果輸入次數超過三次並且密碼不正確，則會跳出迴圈；第二部分是一個菜單選擇功能，可以輸入字母選擇不同的操作。整體而言，這是一個簡單的控制台應用程式，用戶可以根據菜單進行不同的操作。
