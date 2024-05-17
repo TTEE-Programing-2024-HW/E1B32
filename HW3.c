@@ -38,4 +38,11 @@ int main(void){
 	}while(p!=2024);//第一題p若不是2024則繼續迴圈
     printf("歡迎!");
     system("clear");//清空控制台窗口的內容
+
+    printf("----[Booking System]----\n");
+    printf("<a.Available seats     >\n");
+    printf("<b.Arrange for you     >\n");
+    printf("<c.Choose by urself    >\n");
+    printf("<d.Exit                >\n");
+    printf("------------------------\n");//第二題主選單
 }
