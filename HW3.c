@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <conio.h> 
 
 #define ROWS 9
 #define COLS 9
@@ -13,6 +12,7 @@ void display_seats(char seats[ROWS][COLS]);
 void reserve_random_seats(char seats[ROWS][COLS]);
 void clear_screen();
 int manual_select_seats(char seats[ROWS][COLS]);
+int reserve_seats(char seats[ROWS][COLS], int num_seats);
 
 int main() {
     printf("-----------\n");
@@ -37,28 +37,21 @@ int main() {
     printf("<         >\n");
     printf("<         >\n");
     printf("-----------\n");//個人風格
-    int n=0,p;
-    do
-	{
-		printf("請輸入密碼");
-		scanf("%d",&p);
-		n++;
-		if(n>=3)
-		{
-			printf("超過3次\n");
-			printf("\a");
-			break;
-		}
-	}while(p!=2024);//第一題p若不是2024則繼續迴圈
-    printf("歡迎!");
-    system("cls");//清空控制台窗口的內容
 
-    printf("----[Booking System]----\n");
-    printf("<a.Available seats     >\n");
-    printf("<b.Arrange for you     >\n");
-    printf("<c.Choose by urself    >\n");
-    printf("<d.Exit                >\n");
-    printf("------------------------\n");//第二題主選單
+    int n = 0, p;
+    do {
+        printf("請輸入密碼: ");
+        scanf("%d", &p);
+        n++;
+        if (n >= 3) {
+            printf("超過3次\n");
+            printf("\a");
+            return 1;  // 結束程式
+        }
+    } while (p != 2024);  // 第一題p若不是2024則繼續迴圈
+    printf("歡迎!\n");
+    getchar();  // 清除緩衝區中的多餘字符
+    clear_screen();  // 清空控制台窗口的內容
 
     char seats[ROWS][COLS];
     char choice;
@@ -69,51 +62,102 @@ int main() {
     reserve_random_seats(seats);
 
     while (1) {
-        printf("請按 'a' 顯示座位表，按 'b' 預訂座位，按 'c' 手動選座，或按 'q' 退出：");
+        printf("----[Booking System]----\n");
+        printf("<a.Available seats     >\n");
+        printf("<b.Arrange for you     >\n");
+        printf("<c.Choose by urself    >\n");
+        printf("<d.Exit                >\n");
+        printf("------------------------\n");
+
+        printf("請按 'a' 顯示座位表，按 'b' 預訂座位，按 'c' 手動選座，按 'd' 確認繼續或退出，或按 'q' 退出：");
         choice = getchar();
-        getchar();  // 捕捉並忽略 Enter 鍵
+        while (getchar() != '\n');  // 清除緩衝區中的多餘字符
 
         if (choice == 'q') {
             break;
-        } else if (choice == 'a') {//第三題
+        } else if (choice == 'a') {
             display_seats(seats);
             printf("按任意鍵返回主選單...");
-            _getch();  // 只適用於 Windows 平台
+            getchar();  // 捕捉任意鍵按下
             clear_screen();
-        } else if (choice == 'b') {//第四題
+        } else if (choice == 'b') {
             int num_seats;
             printf("請輸入需要的座位數量（1-4）：");
             scanf("%d", &num_seats);
-            getchar();  // 捕捉並忽略 Enter 鍵
+            while (getchar() != '\n');  // 清除緩衝區中的多餘字符
 
             if (num_seats < 1 || num_seats > 4) {
                 printf("無效的座位數量！\n");
                 continue;
-             }
-
-            printf("這些座位滿意嗎？（y/n）：");
-            char satisfaction = getchar();
-            getchar();  // 捕捉並忽略 Enter 鍵
-
-            if (satisfaction == 'y') {
-                printf("座位已預訂。\n");
-            } else {
-                printf("重新選擇座位。\n");
             }
-            printf("按任意鍵返回主選單...");
-            _getch();  // 只適用於 Windows 平台
-            clear_screen();
-        } else if (choice == 'c') {//第五題
+
+            if (reserve_seats(seats, num_seats)) {
+                display_seats(seats);
+                printf("這些座位滿意嗎？（y/n）：");
+                char satisfaction = getchar();
+                while (getchar() != '\n');  // 清除緩衝區中的多餘字符
+
+                if (satisfaction == 'y') {
+                    printf("座位已預訂。\n");
+                    for (int i = 0; i < ROWS; ++i) {
+                        for (int j = 0; j < COLS; ++j) {
+                            if (seats[i][j] == '@') {
+                                seats[i][j] = '*';
+                            }
+                        }
+                    }
+                } else {
+                    printf("重新選擇座位。\n");
+                    for (int i = 0; i < ROWS; ++i) {
+                        for (int j = 0; j < COLS; ++j) {
+                            if (seats[i][j] == '@') {
+                                seats[i][j] = '-';
+                            }
+                        }
+                    }
+                }
+                printf("按任意鍵返回主選單...");
+                getchar();  // 捕捉任意鍵按下
+                clear_screen();
+            } else {
+                printf("無法找到足夠的連續座位。\n");
+                printf("按任意鍵返回主選單...");
+                getchar();  // 捕捉任意鍵按下
+                clear_screen();
+            }
+        } else if (choice == 'c') {
             if (manual_select_seats(seats)) {
                 display_seats(seats);
                 printf("按任意鍵確認選擇的座位...");
-                _getch();  // 只適用於 Windows 平台
+                getchar();  // 捕捉任意鍵按下
                 clear_screen();
+                for (int i = 0; i < ROWS; ++i) {
+                    for (int j = 0; j < COLS; ++j) {
+                        if (seats[i][j] == '@') {
+                            seats[i][j] = '*';
+                        }
+                    }
+                }
             } else {
                 printf("選擇座位失敗。\n");
                 printf("按任意鍵返回主選單...");
-                _getch();  // 只適用於 Windows 平台
+                getchar();  // 捕捉任意鍵按下
                 clear_screen();
+            }
+        } else if (choice == 'd') {
+            while (1) {
+                printf("Continue? (y/n): ");
+                char cont = getchar();
+                while (getchar() != '\n');  // 清除緩衝區中的多餘字符
+
+                if (cont == 'y') {
+                    clear_screen();
+                    break;
+                } else if (cont == 'n') {
+                    exit(0);
+                } else {
+                    printf("無效的輸入，請重新輸入。\n");
+                }
             }
         }
     }
@@ -188,7 +232,29 @@ int manual_select_seats(char seats[ROWS][COLS]) {
     return (num_selected_seats > 0);
 }
 
+int reserve_seats(char seats[ROWS][COLS], int num_seats) {
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j <= COLS - num_seats; ++j) {
+            int can_reserve = 1;
+            for (int k = 0; k < num_seats; ++k) {
+                if (seats[i][j + k] != '-') {
+                    can_reserve = 0;
+                    break;
+                }
+            }
+            if (can_reserve) {
+                for (int k = 0; k < num_seats; ++k) {
+                    seats[i][j + k] = '@';
+                }
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 void clear_screen() {
     // 清除螢幕，適用於 Windows 平台
     system("cls");
 }
+//這次程式設計練習了C語言的基本輸入輸出、陣列操作和循環控制。通過實現座位預訂系統，提升了處理用戶交互和錯誤檢查的能力。
